@@ -16,21 +16,24 @@ void RecvTokens(const char* fn) {
 	}
 
 	while (!feof(file)) {
+		memset(tempLineBuffer, 0, sizeof(char) * TEMP_BUF);
 		fgets(tempLineBuffer, sizeof(char) * TEMP_BUF, file);
 		
 		ctr_tokens.LineToTok(tempLineBuffer);
 		InstructionProcess();
-	
-	}
+	}	
+	fputs("Press any key to quit", stdout);
+	fgetc(stdin);
 }
 
 void InstructionProcess() {
 	switch (ctr_tokens.GetInstructionCode()) {
 	case PRINT:
-		fputs(TokenCat(), stdout);
+		TokenCat();
 		break;
 	case PRINTLN:
-
+		TokenCat();
+		fputs("\n", stdout);
 		break;
 	case IF:
 		break;
@@ -40,8 +43,7 @@ void InstructionProcess() {
 		break;
 	case VAR: // could be variable declaration
 		// variale validation
-		// variable cannot start with number
-		
+		// variable cannot start with number	
 		if (ctr_resources.VariableValidation(ctr_tokens.PeekToken(1)) && (TokenOperatorCheck(ctr_tokens.PeekToken(2)) == 0)) {
 			if (ctr_resources.VarSearchByName(ctr_tokens.PeekToken(1)) == -1) {
 				ctr_resources.VarInit(ctr_tokens.PeekToken(1), ctr_tokens.PeekToken(3));
@@ -55,33 +57,28 @@ void InstructionProcess() {
 			fputs("Invalid variable name", stderr);
 			exit(-1);
 		}
-		
 		break;
 	}
-
+	ctr_tokens.Release();
 }
 
-
-const char* TokenCat() {
+void TokenCat() {
+	int len = 0;
 	char strBuffer[TEMP_BUF];
+	char* rtnPtr;
 	memset(strBuffer, 0, sizeof(char) * TEMP_BUF);
 
 	// first token
-	if (ctr_resources.VarSearchByName(ctr_tokens.PeekToken(1)) < 0) {
-		sprintf_s(strBuffer, "%s", ctr_tokens.PeekToken(1));
-	}
-	else {
-		sprintf_s(strBuffer, "%s", ctr_resources.VarGetDataByName(ctr_tokens.PeekToken(1)));
-	}
-
-	// else
-	if (ctr_tokens.TokenLen() > 3) {
-		for (int i = 2; i < ctr_tokens.TokenLen(); i++) {
-			sprintf_s(strBuffer, "%s %s", strBuffer, ctr_resources.VarGetDataByName(ctr_tokens.PeekToken(i)));
-		}
-	}
-	else if (ctr_tokens.TokenLen() == 3) {
+	sprintf_s(strBuffer, "%s", ctr_resources.VarGetDataByName(ctr_tokens.PeekToken(1)));
+	if (ctr_tokens.TokenLen() == 3) {
 		sprintf_s(strBuffer, "%s %s", strBuffer, ctr_resources.VarGetDataByName(ctr_tokens.PeekToken(2)));
 	}
-	return strBuffer;
+	else if (ctr_tokens.TokenLen() > 3) {
+		for (int i = 2; i < ctr_tokens.TokenLen(); i++) {
+			sprintf_s(strBuffer, "%s %s",strBuffer,  ctr_resources.VarGetDataByName(ctr_tokens.PeekToken(i)));
+		}
+	}
+	len = strlen(strBuffer);
+	strBuffer[len + 1] = 0;
+	fputs(strBuffer, stdout);
 }

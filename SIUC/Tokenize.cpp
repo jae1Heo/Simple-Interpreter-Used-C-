@@ -5,11 +5,10 @@
 Tokenize::Tokenize() {}
 
 void Tokenize::LineToTok(char* line) {
-	char* token = strtok(line, " ");
+	char* token = strtok(line, " ,\n\t");
 	while (token != NULL) {
-		toUpper(token);
 		token_table.push_back(token);
-		token = strtok(NULL, " ");
+		token = strtok(NULL, " ,\n\t");
 	}
 }
 
@@ -17,7 +16,9 @@ char* Tokenize::PeekToken(int index) const {
 	return token_table[index];
 }
 
-unsigned int Tokenize::GetInstructionCode() {
+signed int Tokenize::GetInstructionCode() {
+	toUpper(token_table.front());
+	
 	if (!strcmp(token_table.front(), "PRINT")) {
 		return 1;
 	}
@@ -33,8 +34,11 @@ unsigned int Tokenize::GetInstructionCode() {
 	else if (!strcmp(token_table.front(), "END")) {
 		return 5;
 	}
-	else { // it could be error but also could be variable declaration
+	else if(!strcmp(token_table.front(), "VAR")) { // it could be error but also could be variable declaration
 		return 0;
+	}
+	else {
+		return -1;
 	}
 }
 
@@ -43,9 +47,7 @@ signed int Tokenize::TokenLen() const {
 }
 
 void Tokenize::Release() {
-	for (auto& tok : token_table) {
-		delete[] tok;
-	}
+	token_table.clear();
 }
 
 Tokenize::~Tokenize() {

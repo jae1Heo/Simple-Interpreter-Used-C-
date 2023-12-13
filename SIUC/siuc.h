@@ -5,4 +5,4 @@
 
 void RecvTokens(const char*);
 void InstructionProcess();
-const char* TokenCat();
+void TokenCat();

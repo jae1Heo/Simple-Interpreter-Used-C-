@@ -11,7 +11,7 @@ public:
 	void LineToTok(char*);
 	char* PeekToken(int index) const;
 	signed int TokenLen() const;
-	unsigned int GetInstructionCode();
+	signed int GetInstructionCode();
 	
 	void Release();
 
