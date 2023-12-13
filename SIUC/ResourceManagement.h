@@ -13,8 +13,12 @@ private:
 public:
 	VarResources();
 	void VarInit(const char*, const char*);
+	void PushCondition(const char*);
+	char* TopCondition() const;
+	void PopCondition();
 	signed int VarSearchByName(const char*);
-	const char* VarGetDataByName(const char*);
+	const char* VarGetStrDataByName(const char*);
+	const double VarGetDataByName(const char*);
 	bool VariableValidation(const char*);
 	
 	~VarResources();

@@ -73,13 +73,13 @@ void TokenCat() {
 	memset(strBuffer, 0, sizeof(char) * TEMP_BUF);
 
 	// first token
-	sprintf_s(strBuffer, "%s", ctr_resources.VarGetDataByName(ctr_tokens.PeekToken(1)));
+	sprintf_s(strBuffer, "%s", ctr_resources.VarGetStrDataByName(ctr_tokens.PeekToken(1)));
 	if (ctr_tokens.TokenLen() == 3) {
-		sprintf_s(strBuffer, "%s %s", strBuffer, ctr_resources.VarGetDataByName(ctr_tokens.PeekToken(2)));
+		sprintf_s(strBuffer, "%s %s", strBuffer, ctr_resources.VarGetStrDataByName(ctr_tokens.PeekToken(2)));
 	}
 	else if (ctr_tokens.TokenLen() > 3) {
 		for (int i = 2; i < ctr_tokens.TokenLen(); i++) {
-			sprintf_s(strBuffer, "%s %s",strBuffer,  ctr_resources.VarGetDataByName(ctr_tokens.PeekToken(i)));
+			sprintf_s(strBuffer, "%s %s",strBuffer,  ctr_resources.VarGetStrDataByName(ctr_tokens.PeekToken(i)));
 		}
 	}
 	len = strlen(strBuffer);
