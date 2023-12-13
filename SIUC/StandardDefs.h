@@ -19,5 +19,6 @@ using namespace std;
 #define VAR_BUF 1024
 #define TOKEN_BUF 1024
 
-enum E_TOKENS{ERR = 0,PRINT = 1, PRINTLN, IF, WHILE, END};
+enum E_TOKENS{VAR = 0,PRINT = 1, PRINTLN, IF, WHILE, END};
+enum OPERATORS{EQU = 0, LESS = 1, GRT = 2, ERR = 3}; // 3 is error for now.
 

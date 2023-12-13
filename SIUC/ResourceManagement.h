@@ -14,6 +14,8 @@ public:
 	VarResources();
 	void VarInit(const char*, const char*);
 	signed int VarSearchByName(const char*);
+	const char* VarGetDataByName(const char*);
+	bool VariableValidation(const char*);
 	
 	~VarResources();
 	

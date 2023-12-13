@@ -33,9 +33,13 @@ unsigned int Tokenize::GetInstructionCode() {
 	else if (!strcmp(token_table.front(), "END")) {
 		return 5;
 	}
-	else{ // error
+	else { // it could be error but also could be variable declaration
 		return 0;
 	}
+}
+
+signed int Tokenize::TokenLen() const {
+	return token_table.size();
 }
 
 void Tokenize::Release() {
