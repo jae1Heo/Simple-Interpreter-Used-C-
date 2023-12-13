@@ -9,8 +9,15 @@ char tempPrintBuffer[TEMP_BUF];
 void RecvTokens(const char* fn) {
 	FILE* file;
 	fopen_s(&file, fn, "r");
+
+	if (file == NULL) {
+		fputs("Cannot open file", stderr);
+		exit(-1);
+	}
+
 	while (!feof(file)) {
 		fgets(tempLineBuffer, sizeof(char) * TEMP_BUF, file);
+		
 		ctr_tokens.LineToTok(tempLineBuffer);
 		InstructionProcess();
 	
