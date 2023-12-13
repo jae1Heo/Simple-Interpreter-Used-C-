@@ -63,6 +63,10 @@ void InstructionProcess() {
 }
 
 void TokenCat() {
+	if (ctr_tokens.TokenLen() < 2) {
+		fputs("few arguments Usage: print/println args..", stderr);
+		exit(-1);
+	}
 	int len = 0;
 	char strBuffer[TEMP_BUF];
 	char* rtnPtr;
