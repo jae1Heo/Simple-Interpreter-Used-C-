@@ -17,9 +17,8 @@ public:
 	char* TopCondition() const;
 	void PopCondition();
 	signed int VarSearchByName(const char*);
-	const char* VarGetStrDataByName(const char*);
-	const double VarGetDataByName(const char*);
-	bool VariableValidation(const char*);
+	const char* VarGetDataByName(const char*);
+	void VariableValidation(const char*);
 	
 	~VarResources();
 	

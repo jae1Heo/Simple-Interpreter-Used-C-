@@ -36,6 +36,7 @@ void InstructionProcess() {
 		fputs("\n", stdout);
 		break;
 	case IF:
+
 		break;
 	case WHILE:
 		break;
@@ -43,15 +44,20 @@ void InstructionProcess() {
 		break;
 	case VAR: // could be variable declaration
 		// variale validation
-		// variable cannot start with number	
-		if (ctr_resources.VariableValidation(ctr_tokens.PeekToken(1)) && (TokenOperatorCheck(ctr_tokens.PeekToken(2)) == 0)) {
-			if (ctr_resources.VarSearchByName(ctr_tokens.PeekToken(1)) == -1) {
-				ctr_resources.VarInit(ctr_tokens.PeekToken(1), ctr_tokens.PeekToken(3));
-			}
-			else {
-				fputs("Variable already exists", stderr);
-				exit(-1);
-			}
+		// variable cannot start with number
+		try {
+			ctr_resources.VariableValidation(ctr_tokens.PeekToken(1));
+			TokenOperatorCheck(ctr_tokens.PeekToken(1)[0]);
+			ctr_tokens.IsVarOperator(ctr_tokens.PeekToken(2));
+		}
+		catch (int err) {
+			fputs("number/operator cannot be a variable name", stderr);
+			exit(-1);
+		}
+
+
+		if (ctr_resources.VarSearchByName(ctr_tokens.PeekToken(1)) == -1) {
+			ctr_resources.VarInit(ctr_tokens.PeekToken(1), ctr_tokens.PeekToken(3));
 		}
 		else {
 			fputs("Invalid variable name", stderr);

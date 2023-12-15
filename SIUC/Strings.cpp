@@ -31,3 +31,9 @@ unsigned int TokenOperatorCheck(const char* op) {
 		return 3;
 	}
 }
+
+void TokenOperatorCheck(const char ch) { // for variable
+	if (ch == '=' || ch == '+' || ch == '-') {
+		throw int(ch);
+	}
+}

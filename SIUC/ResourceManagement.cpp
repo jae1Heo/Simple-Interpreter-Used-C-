@@ -30,14 +30,14 @@ signed int VarResources::VarSearchByName(const char* v_name) {
 	return -1;
 }
 
-bool VarResources::VariableValidation(const char* token) {
+void VarResources::VariableValidation(const char* token) {
 	char var_name_f = token[0];
 	if (isdigit(var_name_f)) {
 		return false;
 	}
 	return true;
 	
-} // if given variable's first character is a number, returns false. otherwise, returns true.
+}
 
 const char* VarResources::VarGetStrDataByName(const char* v_name) {
 	int index = VarSearchByName(v_name);
