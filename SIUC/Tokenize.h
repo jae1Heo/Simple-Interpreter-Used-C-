@@ -10,9 +10,9 @@ public:
 	Tokenize();
 	void LineToTok(char*);
 	char* PeekToken(int index) const;
-	signed int TokenLen() const;
+	size_t TokenLen() const;
 	signed int GetInstructionCode();
-	
+	void IsVarOperator(const char*);
 	void Release();
 
 	~Tokenize();

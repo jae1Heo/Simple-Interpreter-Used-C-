@@ -42,8 +42,14 @@ signed int Tokenize::GetInstructionCode() {
 	}
 }
 
-signed int Tokenize::TokenLen() const {
+size_t Tokenize::TokenLen() const {
 	return token_table.size();
+}
+
+void Tokenize::IsVarOperator(const char* token) {
+	if (TokenOperatorCheck(token)) {
+		throw (-1);
+	}
 }
 
 void Tokenize::Release() {

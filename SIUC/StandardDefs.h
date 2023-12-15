@@ -20,6 +20,6 @@ using namespace std;
 #define TOKEN_BUF 1024
 
 enum E_TOKENS{VAR = 0,PRINT = 1, PRINTLN, IF, WHILE, END};
-enum OPERATORS_ARI{EQU = 0, SUB, ADD, ERR};
-enum OPERATORS_COMP{EQU = 0, LESS, GRT, ERR}; // 3 is error for now.
+enum OPERATORS_ARI{EQU_A = 0, SUB, ADD, ERR_A};
+enum OPERATORS_COMP{EQU_C = 0, LESS, GRT, ERR_C}; // 3 is error for now.
 

@@ -1,4 +1,4 @@
-var a = 5
+var a = interpreter
 var b = 4
-println a k
+println this is a
 println b

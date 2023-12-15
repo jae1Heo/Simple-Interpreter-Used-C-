@@ -52,7 +52,7 @@ void InstructionProcess() {
 		}
 		catch (int err) {
 			fputs("number/operator cannot be a variable name", stderr);
-			exit(-1);
+			exit(err);
 		}
 
 
@@ -73,7 +73,7 @@ void TokenCat() {
 		fputs("few arguments Usage: print/println args..", stderr);
 		exit(-1);
 	}
-	int len = 0;
+	size_t len = 0;
 	char strBuffer[TEMP_BUF];
 	char* rtnPtr;
 	memset(strBuffer, 0, sizeof(char) * TEMP_BUF);

@@ -33,9 +33,8 @@ signed int VarResources::VarSearchByName(const char* v_name) {
 void VarResources::VariableValidation(const char* token) {
 	char var_name_f = token[0];
 	if (isdigit(var_name_f)) {
-		return false;
+		throw int(var_name_f);
 	}
-	return true;
 	
 }
 

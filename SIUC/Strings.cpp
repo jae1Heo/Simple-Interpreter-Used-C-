@@ -37,3 +37,18 @@ void TokenOperatorCheck(const char ch) { // for variable
 		throw int(ch);
 	}
 }
+
+unsigned int TokenOperatorCheckComp(const char* op) {
+	if (!strcmp(op, "==")) {
+		return 0;
+	}
+	else if (!strcmp(op, "-")) {
+		return 1;
+	}
+	else if (!strcmp(op, "+")) {
+		return 2;
+	}
+	else {
+		return 3;
+	}
+}
