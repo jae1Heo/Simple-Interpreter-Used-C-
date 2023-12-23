@@ -36,7 +36,7 @@ void InstructionProcess() {
 		fputs("\n", stdout);
 		break;
 	case IF:
-
+		
 		break;
 	case WHILE:
 		break;
