@@ -6,26 +6,14 @@ class Conditions {
 protected:
 	vector<char*>Ops_a; // arithmetic operators
 	vector<char*>Args; // arguments
-	queue<char*>q;
+	char** expression;
+	size_t exp_num;
+	char* cmp_op;
 public:
 	Conditions();
 	void Append(vector<char*>);
-	//virtual bool CondCheck();
-	void QueueBuild();
+	void QueueBuild(); 
+	bool isIFSatisfied(VarResources&); // **helper method - checking if-statement is satisfied
 	void Release();
 	~Conditions();
-};
-
-class ConditionIF : Conditions {
-public:
-	ConditionIF();
-	//virtual bool CondCheck();
-	~ConditionIF();
-};
-
-class ConditionWHILE : Conditions {
-public:
-	ConditionWHILE();
-	//virtual bool CondCheck();
-	~ConditionWHILE();
 };

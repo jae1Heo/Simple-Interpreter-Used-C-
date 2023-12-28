@@ -121,10 +121,30 @@ Variable& Variable::operator+=(const Variable& rhc) {
 	return *this;
 }
 
+// string 
+Variable& Variable::operator+=(const char* rhs) {
+	if (nData != NULL && strtod(rhs, NULL)) {
+		nData += strtod(rhs, NULL);
+		Set(to_string(nData).c_str());
+	}
+	else {
+		char* s_temp = new char[strlen(sData) + 1];
+		strcpy_s(s_temp, sizeof(char) * strlen(sData) + 1, sData);
+		delete[] sData;
+		sData = new char[strlen(s_temp) + strlen(rhs) + 1];
+		strcpy_s(sData, strlen(s_temp) + strlen(rhs) + 1, Append(s_temp, rhs));
+	}
+	return *this;
+}
+
 Variable& Variable::operator-(const Variable& rhc) {
 	if (rhc.GetNum() != NULL && nData != NULL) {
 		nData -= rhc.GetNum();
 		Set(to_string(nData).c_str());
+	}
+	else { // if both variables are not a number, quit program
+		fputs("strings cannot be subtracted", stderr);
+		exit(-1);
 	}
 	return *this;
 }
@@ -134,7 +154,36 @@ Variable Variable::operator-(const Variable& rhc) const {
 	if (temp.GetNum() != NULL && rhc.GetNum() != NULL) {
 		temp.nData -= rhc.nData;
 	}
+	else {
+		fputs("strings cannot be subtracted", stderr);
+		exit(-1);
+	}
 	return temp;
+}
+
+Variable& Variable::operator-=(const Variable& rhc) {
+	if (rhc.GetNum() != NULL && nData != NULL) {
+		nData -= rhc.GetNum();
+		Set(to_string(nData).c_str());
+	}
+	else {
+		fputs("strings cannot be subtracted", stderr);
+		exit(-1);
+	}
+	return *this;
+}
+
+Variable& Variable::operator-=(const char* rhs) {
+	if (nData != NULL && strtod(rhs, NULL)) {
+		nData -= strtod(rhs, NULL);
+		Set(to_string(nData).c_str());
+	}
+	else {
+		fputs("strings cannot be subtracted", stderr);
+		exit(-1);
+	}
+
+	return *this;
 }
 
 Variable::~Variable() {

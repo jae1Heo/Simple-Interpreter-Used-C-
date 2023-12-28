@@ -16,6 +16,7 @@ public:
 	void PushCondition(const char*);
 	char* TopCondition() const;
 	void PopCondition();
+	//signed int GetVarIndexByName(const char*);
 	signed int VarSearchByName(const char*);
 	const char* VarGetStrDataByName(const char*);
 	const double VarGetDataByName(const char*);

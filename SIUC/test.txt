@@ -1,4 +1,11 @@
-var a = interpreter
-var b = 4
-println this is a
-println b
+var a = 1
+var b = test
+var c = test
+var d = 1
+if b == c
+println first if entered
+if a == d
+println nested if entered
+end
+end
+println worked
