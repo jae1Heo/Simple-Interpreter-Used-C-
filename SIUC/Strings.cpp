@@ -7,11 +7,11 @@ const char* Append(const char* lhs, const char* rhs) {
 	return temp;
 }
 
-void toUpper(char* rhs) {
+void toLower(char* rhs) {
 	char* temp = rhs;
 	while (*temp) {
 		if (isalpha(*temp)) {
-			*temp = toupper((unsigned char)*temp);
+			*temp = tolower((unsigned char)*temp);
 		}
 		temp++;
 	}
@@ -27,7 +27,30 @@ unsigned int TokenOperatorCheck(const char* op) {
 	else if (!strcmp(op, "+")) {
 		return 2;
 	}
-	else { // error, for now
+	else { // error, or variable?
 		return 3;
 	}
 }
+
+void TokenOperatorCheck(const char ch) { // helper function for variable declaration
+	if (ch == '=' || ch == '+' || ch == '-') {
+		throw int(ch);
+	}
+}
+
+unsigned int TokenOperatorCheckComp(const char* op) {
+	if (!strcmp(op, "==")) {
+		return 0;
+	}
+	else if (!strcmp(op, ">")) {
+		return 1;
+	}
+	else if (!strcmp(op, "<")) {
+		return 2;
+	}
+	else {
+		return 3; // error?
+	}
+}
+
+

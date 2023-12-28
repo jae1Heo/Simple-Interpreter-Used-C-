@@ -5,7 +5,7 @@
 Tokenize::Tokenize() {}
 
 void Tokenize::LineToTok(char* line) {
-	char* token = strtok(line, " ,\n\t");
+	char* token = strtok(const_cast<char*>(line), " ,\n\t");
 	while (token != NULL) {
 		token_table.push_back(token);
 		token = strtok(NULL, " ,\n\t");
@@ -17,24 +17,24 @@ char* Tokenize::PeekToken(int index) const {
 }
 
 signed int Tokenize::GetInstructionCode() {
-	toUpper(token_table.front());
+	toLower(token_table.front());
 	
-	if (!strcmp(token_table.front(), "PRINT")) {
+	if (!strcmp(token_table.front(), "print")) {
 		return 1;
 	}
-	else if (!strcmp(token_table.front(), "PRINTLN")) {
+	else if (!strcmp(token_table.front(), "println")) {
 		return 2;
 	}
-	else if (!strcmp(token_table.front(), "IF")) {
+	else if (!strcmp(token_table.front(), "if")) {
 		return 3;
 	}
-	else if (!strcmp(token_table.front(), "WHILE")) {
+	else if (!strcmp(token_table.front(), "while")) {
 		return 4;
 	}
-	else if (!strcmp(token_table.front(), "END")) {
+	else if (!strcmp(token_table.front(), "end")) {
 		return 5;
 	}
-	else if(!strcmp(token_table.front(), "VAR")) { // it could be error but also could be variable declaration
+	else if(!strcmp(token_table.front(), "var")) { // it could be error but also could be variable declaration
 		return 0;
 	}
 	else {
@@ -42,14 +42,30 @@ signed int Tokenize::GetInstructionCode() {
 	}
 }
 
-signed int Tokenize::TokenLen() const {
+size_t Tokenize::TokenLen() const {
 	return token_table.size();
 }
 
+void Tokenize::IsVarOperator(const char* token) {
+	if (TokenOperatorCheck(token)) {
+		throw (-1);
+	}
+}
+
+vector<char*> Tokenize::GetEntireTokens() const {
+	return token_table;
+}
+
 void Tokenize::Release() {
-	token_table.clear();
+	size_t tk_len = TokenLen();
+	for (int i = 0; i < tk_len; i++) {
+		token_table.pop_back();
+	}
 }
 
 Tokenize::~Tokenize() {
-	token_table.~vector();
+	size_t tk_len = TokenLen();
+	for (int i = 0; i < tk_len; i++) {
+		token_table.pop_back();
+	}
 }

@@ -127,6 +127,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Conditions.h" />
     <ClInclude Include="Headers.h" />
     <ClInclude Include="ResourceManagement.h" />
     <ClInclude Include="siuc.h" />
@@ -136,6 +137,7 @@
     <ClInclude Include="Variable.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Conditions.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="ResourceManagement.cpp" />
     <ClCompile Include="siuc.cpp" />

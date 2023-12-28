@@ -6,6 +6,18 @@ void VarResources::VarInit(const char* v_name, const char* v_data) {
 	var_table.push_back(new Variable(v_name, v_data));
 }
 
+void VarResources::PushCondition(const char* s_cond) {
+	cond_stk.push(const_cast<char*>(s_cond));
+}
+
+char* VarResources::TopCondition() const {
+	return cond_stk.top();
+}
+
+void VarResources::PopCondition() {
+	cond_stk.pop();
+}
+
 signed int VarResources::VarSearchByName(const char* v_name) {
 	int index = 0;
 	for (auto& var : var_table) {
@@ -18,16 +30,15 @@ signed int VarResources::VarSearchByName(const char* v_name) {
 	return -1;
 }
 
-bool VarResources::VariableValidation(const char* token) {
+void VarResources::VariableValidation(const char* token) {
 	char var_name_f = token[0];
 	if (isdigit(var_name_f)) {
-		return false;
+		throw int(var_name_f);
 	}
-	return true;
 	
-} // if given variable's first character is a number, returns false. otherwise, returns true.
+}
 
-const char* VarResources::VarGetDataByName(const char* v_name) {
+const char* VarResources::VarGetStrDataByName(const char* v_name) {
 	int index = VarSearchByName(v_name);
 	if (index < 0) {
 		return v_name;
@@ -35,7 +46,18 @@ const char* VarResources::VarGetDataByName(const char* v_name) {
 	else {
 		return var_table[index]->GetStr();
 	}
-} // if variable exists, returns data. otherwise, returns given name
+} // if variable exists, returns string data. otherwise, returns given name
+
+const double VarResources::VarGetDataByName(const char* v_name) {
+	int index = VarSearchByName(v_name);
+	if (index < 0) {
+		return NULL;
+	}
+	else {
+		return var_table[index]->GetNum();
+	}
+	 
+} // if variable exists, returns data (double). otherwise, returns null
 
 VarResources::~VarResources() {
 	var_table.~vector();

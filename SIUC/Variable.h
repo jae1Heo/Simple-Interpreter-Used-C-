@@ -21,11 +21,18 @@ public:
 	// helper
 
 	operator char*() { return sData; }
+	operator double() {
+		return nData;
+	}
+
 	Variable& operator=(const Variable&);
 	Variable& operator=(Variable&&) noexcept;
 	Variable operator+(const Variable&) const;
 	Variable& operator+(const Variable&);
 	Variable& operator+=(const Variable&);
+	Variable& operator+=(const char*);
+	Variable& operator-=(const Variable&);
+	Variable& operator-=(const char*);
 	Variable& operator-(const Variable&);
 	Variable operator-(const Variable&) const;
 	// operator
