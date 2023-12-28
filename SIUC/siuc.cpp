@@ -50,16 +50,7 @@ void InstructionProcess() {
 
 			if_vector.top()->Append(ifTokens);
 			if_vector.top()->QueueBuild();
-			/*
-			if_vector.push(Conditions());
-			vector<char*> ifTokens;
-			for (int i = 1; i < ctr_tokens.TokenLen(); i++) {
-				ifTokens.push_back(ctr_tokens.PeekToken(i));
-			}
-
-			if_vector.top().Append(ifTokens);
-			//if_vector.top().QueueBuild();
-			*/
+			
 		}
 		break;
 	case WHILE:
