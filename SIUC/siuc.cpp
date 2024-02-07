@@ -2,7 +2,8 @@
 
 VarResources ctr_resources;
 Tokenize ctr_tokens;
-stack<Conditions*> if_vector;
+stack<Conditions*> if_stack;
+stack<Conditions*> while_stack;
 
 int if_counter = 0;
 
@@ -32,42 +33,37 @@ void RecvTokens(const char* fn) {
 void InstructionProcess() {
 	switch (ctr_tokens.GetInstructionCode()) {
 	case PRINT:
-		if (if_vector.empty() || if_vector.top()->isIFSatisfied(ctr_resources)) { TokenCat(); }
+		if (if_stack.empty() || if_stack.top()->isIFSatisfied(ctr_resources)) { TokenCat(); }
 		break;
 	case PRINTLN:
-		if (if_vector.empty() || if_vector.top()->isIFSatisfied(ctr_resources)) {
+		if (if_stack.empty() || if_stack.top()->isIFSatisfied(ctr_resources)) {
 			TokenCat();
 			fputs("\n", stdout);
 		}
 		break;
 	case IF:
-		if (if_vector.empty() || if_vector.top()->isIFSatisfied(ctr_resources)) {
-			if_vector.push(new Conditions());
+		if (if_stack.empty() || if_stack.top()->isIFSatisfied(ctr_resources)) {
+			if_stack.push(new Conditions());
 			vector<char*> ifTokens;
 			for (int i = 1; i < ctr_tokens.TokenLen(); i++) {
 				ifTokens.push_back(ctr_tokens.PeekToken(i));
 			}
 
-			if_vector.top()->Append(ifTokens);
-			if_vector.top()->QueueBuild();
+			if_stack.top()->Append(ifTokens);
 			
 		}
 		break;
 	case WHILE:
-		if (if_vector.empty() || if_vector.top()->isIFSatisfied(ctr_resources)) {
-
-		}
 		break;
 	case END:
-		if (!if_vector.empty()) {
-			delete if_vector.top();
-			if_vector.pop();
+		if (!if_stack.empty()) {
+			if_stack.pop();
 		}
 		break;
 	case VAR: // could be variable declaration
 		// variale validation
 		// variable cannot start with number
-		if (if_vector.empty() || if_vector.top()->isIFSatisfied(ctr_resources)) {
+		if (if_stack.empty() || if_stack.top()->isIFSatisfied(ctr_resources)) {
 			try {
 				ctr_resources.VariableValidation(ctr_tokens.PeekToken(1));
 				TokenOperatorCheck(ctr_tokens.PeekToken(1)[0]);

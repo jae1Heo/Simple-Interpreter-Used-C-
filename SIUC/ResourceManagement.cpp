@@ -35,7 +35,6 @@ void VarResources::VariableValidation(const char* token) {
 	if (isdigit(var_name_f)) {
 		throw int(var_name_f);
 	}
-	
 }
 
 const char* VarResources::VarGetStrDataByName(const char* v_name) {

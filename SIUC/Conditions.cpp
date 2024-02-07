@@ -1,178 +1,181 @@
 #include "Conditions.h"
 
 
-Conditions::Conditions() : expression(nullptr), exp_num(0), cmp_op(nullptr) {}
+Conditions::Conditions() :  left_size(0), right_size(0), cmp_op(nullptr), left(nullptr), right(nullptr) {}
+
 Conditions::~Conditions() {
-	if (!Ops_a.empty()) {
-		for (int i = 0; i < Ops_a.size(); i++) {
-			Ops_a.pop_back();
-		}
-	}
-
-	if (!Args.empty()) {
-		for (int i = 0; i < Args.size(); i++) {
-			Args.pop_back();
-		}
-	}
-	
-	for (int i = 0; i < exp_num; i++) {
-		delete[] expression[i];
-	}
-
-	delete[] expression;
+	delete cmp_op;
+	delete[] left;
+	delete[] right;
 
 }
 
 void Conditions::Append(vector<char*> args) {
-	int tk_op;
-	for (auto& tk : args) {
-		tk_op = TokenOperatorCheck(tk); // if given token is an argument or an comp operator, returns 3
-		try {
-			if (tk_op <= 0) {
-				throw tk_op;
-			}
-			if (tk_op >= 3) { 
-				Args.push_back(tk);
-			}
-			else {
-				Ops_a.push_back(tk);
-			}
-		}
-		catch (int err) {
-			fputs("operator = cannot be used in if-statement", stderr);
-		}
+	int idx = 0;
+	while (TokenOperatorCheckComp(args[idx]) >= 3) {
+		idx++;
 	}
-}
+	left = new char* [sizeof(char*) * idx - 1];
 
-void Conditions::QueueBuild() {
-	queue<char*> tk_queue;
-	int opIdx = 0;
-	tk_queue.push(Args[0]);
-	for (int i = 0; i < Args.size() - 1; i++) {
-		if (TokenOperatorCheckComp(Args[i]) != 3) {
-			cmp_op = new char[sizeof(char) * sizeof(Args[i]) + 1];
-			strcpy_s(cmp_op, sizeof(Args[i]) + 1, Args[i]); // if-statement can only have single compare operator.
-			tk_queue.push(Args[i + 1]);
-		}
-		else {
-			if (TokenOperatorCheckComp(Args[i + 1]) == 3) {
-				tk_queue.push(Args[i + 1]);
-				tk_queue.push(Ops_a[opIdx]);
-				opIdx++;
-			}
-			else {
-				tk_queue.push(Args[i + 1]);
-			}
-		}
+	for (int i = 0; i < idx; i++) {
+		left[i] = new char[sizeof(char) * strlen(args[i]) + 1];
+		strcpy_s(left[i], sizeof(char) * strlen(args[i]) + 1, args[i]);
+		left[i][sizeof(char) * strlen(args[i]) + 1] = '\0';
+		left_size++;
 	}
+	
+	cmp_op = new char[sizeof(char) * strlen(args[idx]) + 1];
+	strcpy_s(cmp_op, sizeof(char) * strlen(args[idx]) + 1, args[idx]);
+	cmp_op[strlen(args[idx]) + 1] = '\0';
+	
+	right = new char* [sizeof(char*) * (args.size() - idx) + 1];
 
-	deque<char*> deq = tk_queue._Get_container(); // deque for receive container of the queue
-	vector<char*> tks;
-	for (auto& a : deq) {
-		tks.push_back(a);
+	for (int i = idx + 1; i < args.size(); i++) {
+		right[i - (idx + 1)] = new char[sizeof(char) * strlen(args[i]) + 1];
+		strcpy_s(right[i - (idx + 1)], sizeof(char) * strlen(args[i]) + 1, args[i]);
+		right[i - (idx + 1)][sizeof(char) * strlen(args[i]) + 1] = '\0';
+		right_size++;
 	}
-
-	expression = new char* [tks.size()];
-	size_t index = 0;
-	for (int i = 0; i < tks.size(); i++) {
-		expression[i] = new char[sizeof(tks[i]) + 1];
-		strcpy_s(expression[i], sizeof(tks[i]) + 1, tks[i]);
-	}
-
-	exp_num = tks.size(); // member variable for the number of tokens
 
 }
 
 bool Conditions::isIFSatisfied(VarResources& var) { 
-	int index = 0; // local variable to divide epression. left exp, operator, right exp
 	Variable v_left, v_l_temp;
 	Variable v_right, v_r_temp;
-	// while loop for getting index of compare operator
-	while (strcmp(expression[index], cmp_op)) {
-		index++;
+	int curOp = 0; // variable curOp would be used for storing both side's arithmetic operators.
+
+	// computing left side
+	v_left.Set(var.VarGetStrDataByName(left[0]));
+	bool isLeftStringOnly = (v_left.GetNum() == INT_MIN);
+
+	// if left side has more than one arguemtns
+	if (left_size > 1) {
+		for (int i = 1; i < left_size; i++) {
+			if (TokenOperatorCheck(left[i]) > 0 && TokenOperatorCheck(left[i]) < 3) {
+				curOp = TokenOperatorCheck(left[i]);
+			}
+			else {
+				v_l_temp.Set(var.VarGetStrDataByName(left[i]));
+				try {
+					if (isLeftStringOnly && v_l_temp.GetNum() != INT_MIN) {
+						throw isLeftStringOnly;
+					}
+					if (!isLeftStringOnly && v_l_temp.GetNum() == INT_MIN) {
+						throw isLeftStringOnly;
+					}
+				}
+				catch (bool err) {
+					fputs("string cannot operated with integer", stderr);
+					exit(-1);
+				}
+
+				try {
+					if (curOp <= 0) {
+						throw curOp;
+					}
+					else {
+						switch (curOp) {
+						case SUB:
+							v_left -= v_l_temp;
+							break;
+						case ADD:
+							v_left += v_l_temp;
+							break;
+						}
+					}
+				}
+				catch (int err) {
+					fputs("Operator = cannot be used", stderr);
+					exit(-1);
+				}
+			}
+		}
 	}
 	
-	v_left.Set(var.VarGetStrDataByName(expression[0]));
-	for (int i = 1; i < index; i++) {
-		try {
-			if (!TokenOperatorCheck(expression[i])) {
-				throw i;
-			}
-			else if (TokenOperatorCheck(expression[i]) < 3) {
-				if (TokenOperatorCheck(expression[i]) == 1) {
-					// if subtraction
-					v_left = v_left - v_l_temp;
-				}
-				else if (TokenOperatorCheck(expression[i]) == 2) {
-					// if addition
-					v_left = v_left + v_l_temp;
-				}
-			}
-			else {
-				v_l_temp.Set(var.VarGetStrDataByName(expression[i]));
-			}
-		}
-		catch (int err) {
-			fputs("= operator cannot be used in if-statement", stderr);
-			exit(-1);
-		}
-	}
-	
+	// computing right side
+	v_right.Set(var.VarGetStrDataByName(right[0]));
+	bool isRightStringOnly = (v_right.GetNum() == INT_MIN);
 
-	v_right.Set(var.VarGetStrDataByName(expression[index + 1]));
-	for (int i = index + 2; i < exp_num; i++) {
-		try {
-			if (!TokenOperatorCheck(expression[i])) {
-				throw i;
-			}
-			else if (TokenOperatorCheck(expression[i]) < 3) {
-				if (TokenOperatorCheck(expression[i]) == 1) {
-					// if subtraction
-					v_right = v_right - v_r_temp;
-				}
-				else if (TokenOperatorCheck(expression[i]) == 2) {
-					// if addition
-					v_right = v_right + v_r_temp;
-				}
+	// if right side has more than one arguments
+	if (right_size > 1) {
+		for (int i = 1; i < right_size; i++) {
+			if (TokenOperatorCheck(right[i]) > 0 && TokenOperatorCheck(right[i]) < 3) {
+				curOp = TokenOperatorCheck(right[i]);
 			}
 			else {
-				v_r_temp.Set(var.VarGetStrDataByName(expression[i]));
+				v_r_temp.Set(var.VarGetStrDataByName(right[i]));
+				try {
+					if (isRightStringOnly && v_r_temp.GetNum() != INT_MIN) {
+						throw isRightStringOnly;
+					}
+
+					if (!isRightStringOnly && v_r_temp.GetNum() == INT_MIN) {
+						throw isRightStringOnly;
+					}
+				}
+				catch (int err) {
+					fputs("string cannot operated with integer", stderr);
+					exit(-1);
+				}
+
+				try {
+					if (curOp <= 0) {
+						throw curOp;
+					}
+					else {
+						switch (curOp) {
+						case SUB:
+							v_right -= v_r_temp;
+							break;
+						case ADD:
+							v_right += v_r_temp;
+							break;
+						}
+					}
+				}
+				catch (int err) {
+					fputs("Operator = cannot be used", stderr);
+					exit(-1);
+				}
+				
 			}
-		}
-		catch (int err) {
-			fputs("= operator cannot be used in if-statement", stderr);
-			exit(-1);
 		}
 	}
 
-	// compare expression
-	if (!TokenOperatorCheckComp(cmp_op)) {
-		if (v_left.GetNum() != NULL && v_right.GetNum() != NULL) {
-			// if left and right are both string,
-			if (!strcmp(v_left, v_right)) {
-				return true;
-			}
-			else {
-				return false;
-			}
-		}
-		else if (v_left.GetNum() == NULL && v_right.GetNum() == NULL) {
-			// if left and right are both number;
-			if (v_left.GetNum() == v_right.GetNum()) {
-				return true;
-			}
-			else {
-				return false;
-			}
+	// computing results
+
+
+
+	// if both sides are string,
+	if (isLeftStringOnly && isRightStringOnly) {
+		// for string, only equal operator would be allowed to compare.
+		// if given is not an equal operator
+		if (TokenOperatorCheckComp(cmp_op) > 0) {
+			fputs("Cannot compare between strings", stderr);
+			exit(-1);
 		}
 		else {
-			fputs("number and string cannot be compared", stderr);
-			exit(-1);
+			return (v_left == v_right);
 		}
 	}
-}
+	// if both sides are integer
+	else if (!isLeftStringOnly && !isRightStringOnly) {
+		switch (TokenOperatorCheckComp(cmp_op)) {
+		case EQU_C:
+			return (v_left == v_right);
+			break;
+		case LESS:
+			return (v_left.GetNum() < v_right.GetNum());
+			break;
+		case GRT:
+			return (v_left.GetNum() > v_right.GetNum());
+			break;
+		}
+	}
+	// otherwise
+	else {
+		fputs("String cannot be operated with integer", stderr);
+		exit(-1);
+	}
 
-
-void Conditions::Release() {
-	
 }

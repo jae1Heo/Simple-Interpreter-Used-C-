@@ -35,6 +35,7 @@ public:
 	Variable& operator-=(const char*);
 	Variable& operator-(const Variable&);
 	Variable operator-(const Variable&) const;
+	bool operator==(const Variable&) const;
 	// operator
 
 	~Variable();

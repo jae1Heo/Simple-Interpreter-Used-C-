@@ -42,10 +42,10 @@ unsigned int TokenOperatorCheckComp(const char* op) {
 	if (!strcmp(op, "==")) {
 		return 0;
 	}
-	else if (!strcmp(op, ">")) {
+	else if (!strcmp(op, "<")) {
 		return 1;
 	}
-	else if (!strcmp(op, "<")) {
+	else if (!strcmp(op, ">")) {
 		return 2;
 	}
 	else {

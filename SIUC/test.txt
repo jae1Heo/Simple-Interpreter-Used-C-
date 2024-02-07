@@ -1,11 +1,9 @@
 var a = 1
-var b = test
-var c = test
-var d = 1
-if b == c
-println first if entered
-if a == d
-println nested if entered
+var b = 2
+if b + a == b + a
+println first if worked
+if b > a
+println nested worked
 end
+println first if ended
 end
-println worked

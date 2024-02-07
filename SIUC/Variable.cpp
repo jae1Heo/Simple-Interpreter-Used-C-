@@ -6,7 +6,7 @@ Variable::Variable(const char* v_name, const char* rhs) {
 	vName = new char[strlen(v_name) + 1];
 	strcpy_s(vName, strlen(v_name) + 1, v_name);
 	if (!(nData = strtod(rhs, NULL))) {
-		nData = NULL;
+		nData = INT_MIN;
 	}
 	sData = new char[strlen(rhs) + 1];
 	strcpy_s(sData, sizeof(char) * strlen(rhs) + 1, rhs);
@@ -32,7 +32,7 @@ char* Variable::GetVarName() const {
 
 void Variable::Set(const char* rhs) {
 	if (!(nData = strtod(rhs, NULL))) {
-		nData = NULL;
+		nData = INT_MIN;
 	}
 	delete[] sData;
 	sData = new char[strlen(rhs) + 1];
@@ -40,10 +40,10 @@ void Variable::Set(const char* rhs) {
 }
 
 double Variable::GetNum() const {
-	if (nData != NULL) {
+	if (nData != INT_MIN) {
 		return nData;
 	}
-	return NULL;
+	return INT_MIN;
 }
 
 char* Variable::GetStr() const {
@@ -54,8 +54,8 @@ char* Variable::GetStr() const {
 }
 
 Variable& Variable::operator=(const Variable& rhc) {
-	if ((nData = rhc.GetNum()) == NULL) {
-		nData = NULL;
+	if ((nData = rhc.GetNum()) == INT_MIN) {
+		nData = INT_MIN;
 	}
 	delete[] sData;
 	sData = new char[strlen(rhc.GetStr()) + 1];
@@ -64,18 +64,18 @@ Variable& Variable::operator=(const Variable& rhc) {
 }
 
 Variable& Variable::operator=(Variable&& rhc) noexcept{
-	if ((nData = rhc.GetNum()) == NULL) {
-		nData = NULL;
+	if ((nData = rhc.GetNum()) == INT_MIN) {
+		nData = INT_MIN;
 	}
 	sData = rhc.sData;
 	rhc.sData = nullptr;
-	rhc.nData = NULL;
+	rhc.nData = INT_MIN;
 	return *this;
 }
 
 Variable Variable::operator+(const Variable& rhc) const {
 	Variable temp(*this);
-	if (rhc.GetNum() != NULL && temp.GetNum() != NULL) {
+	if (rhc.GetNum() != INT_MIN && temp.GetNum() != INT_MIN) {
 		double d_temp = nData + rhc.GetNum();
 		temp.nData = d_temp;
 		temp.Set(to_string(d_temp).c_str());
@@ -91,7 +91,7 @@ Variable Variable::operator+(const Variable& rhc) const {
 
 Variable& Variable::operator+(const Variable& rhc) {
 	double n_temp = nData;
-	if (rhc.GetNum() != NULL && nData != NULL) {
+	if (rhc.GetNum() != INT_MIN && nData != INT_MIN) {
 		nData += rhc.GetNum();
 		Set(to_string(nData).c_str());
 	}
@@ -107,7 +107,7 @@ Variable& Variable::operator+(const Variable& rhc) {
 
 Variable& Variable::operator+=(const Variable& rhc) {
 	double n_temp = nData;
-	if (rhc.GetNum() != NULL && nData != NULL) {
+	if (rhc.GetNum() != INT_MIN && nData != INT_MIN) {
 		nData += rhc.GetNum();
 		Set(to_string(nData).c_str());
 	}
@@ -123,7 +123,7 @@ Variable& Variable::operator+=(const Variable& rhc) {
 
 // string 
 Variable& Variable::operator+=(const char* rhs) {
-	if (nData != NULL && strtod(rhs, NULL)) {
+	if (nData != INT_MIN && strtod(rhs, NULL)) {
 		nData += strtod(rhs, NULL);
 		Set(to_string(nData).c_str());
 	}
@@ -138,7 +138,7 @@ Variable& Variable::operator+=(const char* rhs) {
 }
 
 Variable& Variable::operator-(const Variable& rhc) {
-	if (rhc.GetNum() != NULL && nData != NULL) {
+	if (rhc.GetNum() != INT_MIN && nData != INT_MIN) {
 		nData -= rhc.GetNum();
 		Set(to_string(nData).c_str());
 	}
@@ -151,7 +151,7 @@ Variable& Variable::operator-(const Variable& rhc) {
 
 Variable Variable::operator-(const Variable& rhc) const {
 	Variable temp(*this);
-	if (temp.GetNum() != NULL && rhc.GetNum() != NULL) {
+	if (temp.GetNum() != INT_MIN && rhc.GetNum() != INT_MIN) {
 		temp.nData -= rhc.nData;
 	}
 	else {
@@ -162,7 +162,7 @@ Variable Variable::operator-(const Variable& rhc) const {
 }
 
 Variable& Variable::operator-=(const Variable& rhc) {
-	if (rhc.GetNum() != NULL && nData != NULL) {
+	if (rhc.GetNum() != INT_MIN && nData != INT_MIN) {
 		nData -= rhc.GetNum();
 		Set(to_string(nData).c_str());
 	}
@@ -174,7 +174,7 @@ Variable& Variable::operator-=(const Variable& rhc) {
 }
 
 Variable& Variable::operator-=(const char* rhs) {
-	if (nData != NULL && strtod(rhs, NULL)) {
+	if (nData != INT_MIN && strtod(rhs, NULL)) {
 		nData -= strtod(rhs, NULL);
 		Set(to_string(nData).c_str());
 	}
@@ -186,8 +186,22 @@ Variable& Variable::operator-=(const char* rhs) {
 	return *this;
 }
 
+bool Variable::operator==(const Variable& rhc) const {
+	if (this->GetNum() != INT_MIN && rhc.GetNum() != INT_MIN) {
+		return (this->GetNum() == rhc.GetNum());
+	}
+	else {
+		if (!strcmp(this->GetStr(), rhc.GetStr())) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+}
+
 Variable::~Variable() {
 	delete[] sData;
 	delete[] vName;
-	nData = NULL;
+	nData = INT_MIN;
 }
