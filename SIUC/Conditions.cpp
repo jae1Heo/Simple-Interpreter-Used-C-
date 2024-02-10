@@ -1,7 +1,7 @@
 #include "Conditions.h"
 
 
-Conditions::Conditions() :  left_size(0), right_size(0), cmp_op(nullptr), left(nullptr), right(nullptr) {}
+Conditions::Conditions() :  left_size(0), right_size(0), cmp_op(nullptr), left(nullptr), right(nullptr), cond(NULL), subRoutineVarCounter(0) {}
 
 Conditions::~Conditions() {
 	delete cmp_op;
@@ -10,8 +10,11 @@ Conditions::~Conditions() {
 
 }
 
-void Conditions::Append(vector<char*> args) {
+void Conditions::Append(vector<char*> args, int cond) {
 	int idx = 0;
+
+	this->conditionSet(cond);
+
 	while (TokenOperatorCheckComp(args[idx]) >= 3) {
 		idx++;
 	}
@@ -178,4 +181,34 @@ bool Conditions::isIFSatisfied(VarResources& var) {
 		exit(-1);
 	}
 
+}
+void Conditions::conditionSet(int cond) {
+	switch (cond) {
+	case IF:
+		this->cond = IF;
+		break;
+	case WHILE:
+		this->cond = WHILE;
+		break;
+	default:
+		fputs("Invalid condition", stderr);
+		exit(-1);
+	}
+}
+
+int Conditions::determCondition() {
+	return this->cond;
+}
+
+void Conditions::incSubRoutineVarCounter() {
+	this->subRoutineVarCounter++;
+
+}
+
+int Conditions::getSubRoutineVarCounter() {
+	return this->subRoutineVarCounter;
+}
+
+void Conditions::resetSubRoutineVarCounter() {
+	this->subRoutineVarCounter = 0;
 }

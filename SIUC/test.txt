@@ -1,9 +1,7 @@
 var a = 1
-var b = 2
-if b + a == b + a
-println first if worked
-if b > a
-println nested worked
-end
-println first if ended
+var b = 100
+var counter = 1
+while a < b
+println worked a
+a = a + counter
 end

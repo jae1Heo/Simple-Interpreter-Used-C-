@@ -6,6 +6,11 @@ void VarResources::VarInit(const char* v_name, const char* v_data) {
 	var_table.push_back(new Variable(v_name, v_data));
 }
 
+void VarResources::RemoveLastVariable() {
+	delete var_table[var_table.size() - 1];
+	var_table.pop_back();
+}
+
 void VarResources::PushCondition(const char* s_cond) {
 	cond_stk.push(const_cast<char*>(s_cond));
 }
@@ -57,6 +62,10 @@ const double VarResources::VarGetDataByName(const char* v_name) {
 	}
 	 
 } // if variable exists, returns data (double). otherwise, returns null
+
+Variable& VarResources::varAt(int idx) {
+	return *(this->var_table[idx]);
+}
 
 VarResources::~VarResources() {
 	var_table.~vector();

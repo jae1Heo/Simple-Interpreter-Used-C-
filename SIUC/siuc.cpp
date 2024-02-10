@@ -2,8 +2,11 @@
 
 VarResources ctr_resources;
 Tokenize ctr_tokens;
-stack<Conditions*> if_stack;
-stack<Conditions*> while_stack;
+stack<Conditions*> cond_stack;
+// main
+
+vector<char*> loop_elements;
+// loop
 
 int if_counter = 0;
 
@@ -23,51 +26,85 @@ void RecvTokens(const char* fn) {
 		memset(tempLineBuffer, 0, sizeof(char) * TEMP_BUF);
 		fgets(tempLineBuffer, sizeof(char) * TEMP_BUF, file);
 
+		if ((!cond_stack.empty() && cond_stack.top()->determCondition() == WHILE) || (strstr(tempLineBuffer, "while"))) {
+			char* temp = new char[sizeof(char) * strlen(tempLineBuffer) + 1];
+			strcpy_s(temp, sizeof(char) * strlen(tempLineBuffer) + 1, tempLineBuffer);
+			temp[strlen(tempLineBuffer) + 1] = '\0';
+			loop_elements.push_back(temp);
+		}
+
 		ctr_tokens.LineToTok(tempLineBuffer);
-		InstructionProcess();
+		InstructionProcess(ctr_resources, ctr_tokens);
 	}
 	fputs("Press any key to quit", stdout);
 	fgetc(stdin);
 }
 
-void InstructionProcess() {
-	switch (ctr_tokens.GetInstructionCode()) {
+void InstructionProcess(VarResources& ctr_rcs, Tokenize& ctr_tks) {
+	switch (ctr_tks.GetInstructionCode()) {
 	case PRINT:
-		if (if_stack.empty() || if_stack.top()->isIFSatisfied(ctr_resources)) { TokenCat(); }
+		if (cond_stack.empty() || (cond_stack.top()->determCondition() == IF && cond_stack.top()->isIFSatisfied(ctr_rcs)) || (cond_stack.top()->determCondition() == WHILE && cond_stack.top()->isIFSatisfied(ctr_rcs))) { TokenCat(ctr_rcs, ctr_tks); }
 		break;
 	case PRINTLN:
-		if (if_stack.empty() || if_stack.top()->isIFSatisfied(ctr_resources)) {
-			TokenCat();
+		if (cond_stack.empty() || (cond_stack.top()->determCondition() == IF && cond_stack.top()->isIFSatisfied(ctr_rcs)) || (cond_stack.top()->determCondition() == WHILE && cond_stack.top()->isIFSatisfied(ctr_rcs))) {
+			TokenCat(ctr_rcs, ctr_tks);
 			fputs("\n", stdout);
 		}
 		break;
 	case IF:
-		if (if_stack.empty() || if_stack.top()->isIFSatisfied(ctr_resources)) {
-			if_stack.push(new Conditions());
+		if (cond_stack.empty() || (cond_stack.top()->determCondition() == IF && cond_stack.top()->isIFSatisfied(ctr_rcs)) || (cond_stack.top()->determCondition() == WHILE && cond_stack.top()->isIFSatisfied(ctr_rcs))) {
+			cond_stack.push(new Conditions());
 			vector<char*> ifTokens;
-			for (int i = 1; i < ctr_tokens.TokenLen(); i++) {
-				ifTokens.push_back(ctr_tokens.PeekToken(i));
+			for (int i = 1; i < ctr_tks.TokenLen(); i++) {
+				ifTokens.push_back(ctr_tks.PeekToken(i));
 			}
-
-			if_stack.top()->Append(ifTokens);
 			
+			cond_stack.top()->Append(ifTokens, IF);
 		}
 		break;
 	case WHILE:
+		if (cond_stack.empty() || (cond_stack.top()->determCondition() == IF && cond_stack.top()->isIFSatisfied(ctr_rcs)) || (cond_stack.top()->determCondition() == WHILE && cond_stack.top()->isIFSatisfied(ctr_rcs))) {
+			cond_stack.push(new Conditions());
+			vector<char*> whileTokens;
+			for (int i = 1; i < ctr_tks.TokenLen(); i++) {
+				whileTokens.push_back(ctr_tks.PeekToken(i));
+			}
+			
+			cond_stack.top()->Append(whileTokens, WHILE);
+		}
 		break;
 	case END:
-		if (!if_stack.empty()) {
-			if_stack.pop();
+		if (!cond_stack.empty()) {
+			if (cond_stack.top()->determCondition() == WHILE) {
+				Tokenize loop_elem_tokenize;
+				while (cond_stack.top()->isIFSatisfied(ctr_rcs)) {
+					for (int i = 0; i < loop_elements.size(); i++) {
+						char* temp = new char[strlen(loop_elements[i]) + 1];
+						strcpy_s(temp, sizeof(char) * strlen(loop_elements[i]) + 1, loop_elements[i]);
+						temp[strlen(loop_elements[i]) + 1] = '\0';
+						loop_elem_tokenize.LineToTok(temp);
+
+						InstructionProcess(ctr_rcs, loop_elem_tokenize);
+						loop_elem_tokenize.Release();
+					}
+				}
+			}
+			if (cond_stack.top()->getSubRoutineVarCounter() > 0) {
+				for (int i = 0; i < cond_stack.top()->getSubRoutineVarCounter(); i++) {
+					ctr_rcs.RemoveLastVariable();
+				}
+			}
+			cond_stack.pop();
 		}
 		break;
 	case VAR: // could be variable declaration
 		// variale validation
 		// variable cannot start with number
-		if (if_stack.empty() || if_stack.top()->isIFSatisfied(ctr_resources)) {
+		if (cond_stack.empty() || (cond_stack.top()->determCondition() == IF && cond_stack.top()->isIFSatisfied(ctr_rcs)) || (cond_stack.top()->determCondition() == WHILE && cond_stack.top()->isIFSatisfied(ctr_rcs))) {
 			try {
-				ctr_resources.VariableValidation(ctr_tokens.PeekToken(1));
-				TokenOperatorCheck(ctr_tokens.PeekToken(1)[0]);
-				ctr_tokens.IsVarOperator(ctr_tokens.PeekToken(2));
+				ctr_rcs.VariableValidation(ctr_tks.PeekToken(1));
+				TokenOperatorCheck(ctr_tks.PeekToken(1)[0]);
+				ctr_tks.IsVarOperator(ctr_tks.PeekToken(2));
 			}
 			catch (int err) {
 				fputs("number/operator cannot be a variable name", stderr);
@@ -75,8 +112,11 @@ void InstructionProcess() {
 			}
 
 
-			if (ctr_resources.VarSearchByName(ctr_tokens.PeekToken(1)) == -1) {
-				ctr_resources.VarInit(ctr_tokens.PeekToken(1), ctr_tokens.PeekToken(3));
+			if (ctr_rcs.VarSearchByName(ctr_tks.PeekToken(1)) == -1) {
+				ctr_rcs.VarInit(ctr_tks.PeekToken(1), ctr_tks.PeekToken(3));
+				if (!cond_stack.empty()) {
+					cond_stack.top()->incSubRoutineVarCounter();
+				}
 			}
 			else {
 				fputs("Invalid variable name", stderr);
@@ -85,12 +125,40 @@ void InstructionProcess() {
 		}
 		
 		break;
+	default:
+		if (ctr_rcs.VarSearchByName(ctr_tks.PeekToken(0)) > -1) { 
+			// arithmatic operation could only be done by two arguments - a = a + b
+			if(TokenOperatorCheck(ctr_tks.PeekToken(1)) == 0) {
+				// 0 =(1) 2 +,-(3) 4
+				Variable temp = ctr_rcs.varAt(ctr_rcs.VarSearchByName(ctr_tks.PeekToken(2)));
+				switch (TokenOperatorCheck(ctr_tks.PeekToken(3))) {
+				case SUB:			
+					ctr_rcs.varAt(ctr_rcs.VarSearchByName(ctr_tks.PeekToken(0))) = temp - ctr_rcs.varAt(ctr_rcs.VarSearchByName(ctr_tks.PeekToken(4)));
+					break;
+				case ADD:
+					ctr_rcs.varAt(ctr_rcs.VarSearchByName(ctr_tks.PeekToken(0))) = temp + ctr_rcs.varAt(ctr_rcs.VarSearchByName(ctr_tks.PeekToken(4)));
+					break;
+				default:
+					fputs("Invalid operator", stderr);
+					exit(-1);
+				}
+			}
+			else { // if not '='
+				fputs("Invalid operator", stderr);
+				exit(-1);
+			}
+		}
+		else {
+			printf("variable %s is undefined \n", ctr_tks.PeekToken(0));
+			exit(-1);
+		}
 	}
-	ctr_tokens.Release();
+	ctr_tks.Release();
 }
 
-void TokenCat() {
-	if (ctr_tokens.TokenLen() < 2) {
+
+void TokenCat(VarResources& ctr_rcs, Tokenize& ctr_tks) {
+	if (ctr_tks.TokenLen() < 2) {
 		fputs("few arguments Usage: print/println args..", stderr);
 		exit(-1);
 	}
@@ -100,13 +168,13 @@ void TokenCat() {
 	memset(strBuffer, 0, sizeof(char) * TEMP_BUF);
 
 	// first token
-	sprintf_s(strBuffer, "%s", ctr_resources.VarGetStrDataByName(ctr_tokens.PeekToken(1)));
-	if (ctr_tokens.TokenLen() == 3) {
-		sprintf_s(strBuffer, "%s %s", strBuffer, ctr_resources.VarGetStrDataByName(ctr_tokens.PeekToken(2)));
+	sprintf_s(strBuffer, "%s", ctr_rcs.VarGetStrDataByName(ctr_tks.PeekToken(1)));
+	if (ctr_tks.TokenLen() == 3) {
+		sprintf_s(strBuffer, "%s %s", strBuffer, ctr_rcs.VarGetStrDataByName(ctr_tks.PeekToken(2)));
 	}
-	else if (ctr_tokens.TokenLen() > 3) {
-		for (int i = 2; i < ctr_tokens.TokenLen(); i++) {
-			sprintf_s(strBuffer, "%s %s",strBuffer,  ctr_resources.VarGetStrDataByName(ctr_tokens.PeekToken(i)));
+	else if (ctr_tks.TokenLen() > 3) {
+		for (int i = 2; i < ctr_tks.TokenLen(); i++) {
+			sprintf_s(strBuffer, "%s %s",strBuffer,  ctr_rcs.VarGetStrDataByName(ctr_tks.PeekToken(i)));
 		}
 	}
 	len = strlen(strBuffer);

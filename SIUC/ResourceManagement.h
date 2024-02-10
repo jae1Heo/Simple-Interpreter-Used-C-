@@ -13,6 +13,7 @@ private:
 public:
 	VarResources();
 	void VarInit(const char*, const char*);
+	void RemoveLastVariable();
 	void PushCondition(const char*);
 	char* TopCondition() const;
 	void PopCondition();
@@ -21,6 +22,7 @@ public:
 	const char* VarGetStrDataByName(const char*);
 	const double VarGetDataByName(const char*);
 	void VariableValidation(const char*);
+	Variable& varAt(int);
 	
 	~VarResources();
 	

@@ -4,5 +4,5 @@
 
 
 void RecvTokens(const char*);
-void InstructionProcess();
-void TokenCat();
+void InstructionProcess(VarResources&, Tokenize&);
+void TokenCat(VarResources&, Tokenize&);
